@@ -190,10 +190,10 @@ const toCsv = (data: GroupData) => {
       .join("|"),
     expense.date,
     expense.category,
-    expense.note.replaceAll("\n", " "),
+    expense.note.replace(/\n/g, " "),
   ]);
   const body = [headers, ...rows]
-    .map((row) => row.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(";"))
+    .map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(";"))
     .join("\n");
   return body;
 };
