@@ -90,7 +90,10 @@ const loadData = (): GroupData => {
   }
 };
 
-const calculateBalances = (people: Person[], expenses: Expense[]): Balance[] => {
+const calculateBalances = (
+  people: Person[],
+  expenses: Expense[]
+): Balance[] => {
   const balances: Balance[] = people.map((person) => ({
     personId: person.id,
     paid: 0,
@@ -98,7 +101,9 @@ const calculateBalances = (people: Person[], expenses: Expense[]): Balance[] => 
     net: 0,
   }));
 
-  const balanceMap = new Map(balances.map((balance) => [balance.personId, balance]));
+  const balanceMap = new Map(
+    balances.map((balance) => [balance.personId, balance])
+  );
 
   expenses.forEach((expense) => {
     const share = expense.participantIds.length
@@ -180,7 +185,9 @@ const toCsv = (data: GroupData) => {
     "Kategorie",
     "Notiz",
   ];
-  const peopleMap = new Map(data.people.map((person) => [person.id, person.name]));
+  const peopleMap = new Map(
+    data.people.map((person) => [person.id, person.name])
+  );
   const rows = data.expenses.map((expense) => [
     expense.title,
     expense.amount.toFixed(2),
@@ -500,7 +507,9 @@ const App = () => {
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {data.people.map((person) => {
-                  const selected = expenseDraft.participantIds.includes(person.id);
+                  const selected = expenseDraft.participantIds.includes(
+                    person.id
+                  );
                   return (
                     <button
                       key={person.id}
