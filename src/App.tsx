@@ -1,20 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-
-type Person = {
-  id: string;
-  name: string;
-};
-
-type Expense = {
-  id: string;
-  title: string;
-  amount: number;
-  payerId: string;
-  participantIds: string[];
-  category: string;
-  date: string;
-  note: string;
-};
+import {
+  addExpenseToGroup,
+  deleteExpenseFromGroup,
+  sanitizeExpenseForPeople,
+  syncExpensesWithPeople,
+  type Expense,
+  type Person,
+  updateExpenseInGroup,
+} from "./modules/expenses";
 
 type GroupData = {
   groupName: string;
@@ -213,6 +206,7 @@ const App = () => {
   );
   const [categoryFilter, setCategoryFilter] = useState("Alle");
   const [searchTerm, setSearchTerm] = useState("");
+  const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -269,34 +263,55 @@ const App = () => {
     setData((current) => ({
       ...current,
       people: current.people.filter((person) => person.id !== personId),
-      expenses: current.expenses.map((expense) => ({
-        ...expense,
-        participantIds: expense.participantIds.filter(
-          (participantId) => participantId !== personId
-        ),
-      })),
+      expenses: syncExpensesWithPeople(
+        current.expenses,
+        current.people.filter((person) => person.id !== personId)
+      ),
     }));
   };
 
-  const addExpense = () => {
+  const saveExpense = () => {
     if (!expenseDraft.title.trim() || expenseDraft.amount <= 0) {
       return;
     }
+
+    const sanitizedExpense = sanitizeExpenseForPeople(expenseDraft, data.people);
+
     setData((current) => ({
       ...current,
-      expenses: [
-        ...current.expenses,
-        { ...expenseDraft, id: crypto.randomUUID() },
-      ],
+      expenses: editingExpenseId
+        ? updateExpenseInGroup(current.expenses, sanitizedExpense, current.people)
+        : addExpenseToGroup(
+            current.expenses,
+            { ...sanitizedExpense, id: crypto.randomUUID() },
+            current.people
+          ),
     }));
+
+    setEditingExpenseId(null);
     setExpenseDraft(createEmptyExpense(data.people));
   };
 
   const removeExpense = (expenseId: string) => {
     setData((current) => ({
       ...current,
-      expenses: current.expenses.filter((expense) => expense.id !== expenseId),
+      expenses: deleteExpenseFromGroup(current.expenses, expenseId),
     }));
+
+    if (editingExpenseId === expenseId) {
+      setEditingExpenseId(null);
+      setExpenseDraft(createEmptyExpense(data.people));
+    }
+  };
+
+  const editExpense = (expense: Expense) => {
+    setExpenseDraft(expense);
+    setEditingExpenseId(expense.id);
+  };
+
+  const resetExpenseForm = () => {
+    setEditingExpenseId(null);
+    setExpenseDraft(createEmptyExpense(data.people));
   };
 
   const toggleParticipant = (personId: string) => {
@@ -530,15 +545,15 @@ const App = () => {
             <div className="mt-4 flex flex-wrap gap-3">
               <button
                 className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white"
-                onClick={addExpense}
+                onClick={saveExpense}
               >
-                Ausgabe speichern
+                {editingExpenseId ? "Änderung speichern" : "Ausgabe speichern"}
               </button>
               <button
                 className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700"
-                onClick={() => setExpenseDraft(createEmptyExpense(data.people))}
+                onClick={resetExpenseForm}
               >
-                Formular leeren
+                {editingExpenseId ? "Bearbeitung abbrechen" : "Formular leeren"}
               </button>
             </div>
           </div>
@@ -604,6 +619,12 @@ const App = () => {
                       <span className="text-sm font-semibold text-slate-900">
                         {currency.format(expense.amount)}
                       </span>
+                      <button
+                        className="text-xs text-slate-400 hover:text-slate-600"
+                        onClick={() => editExpense(expense)}
+                      >
+                        Bearbeiten
+                      </button>
                       <button
                         className="text-xs text-slate-400 hover:text-slate-600"
                         onClick={() => removeExpense(expense.id)}
