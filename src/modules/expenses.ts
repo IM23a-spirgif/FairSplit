@@ -49,10 +49,10 @@ export const sanitizeExpenseForPeople = (
       normalizedParticipants.length > 0
         ? normalizedParticipants
         : expense.payerId
-        ? [expense.payerId]
-        : fallbackPayerId
-        ? [fallbackPayerId]
-        : [],
+          ? [expense.payerId]
+          : fallbackPayerId
+            ? [fallbackPayerId]
+            : [],
   };
 };
 

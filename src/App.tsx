@@ -83,7 +83,7 @@ const toCsv = (data: GroupData) => {
     "Notiz",
   ];
   const peopleMap = new Map(
-    data.people.map((person) => [person.id, person.name]),
+    data.people.map((person) => [person.id, person.name])
   );
   const rows = data.expenses.map((expense) => [
     expense.title,
@@ -98,7 +98,7 @@ const toCsv = (data: GroupData) => {
   ]);
   const body = [headers, ...rows]
     .map((row) =>
-      row.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(";"),
+      row.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(";")
     )
     .join("\n");
   return body;
@@ -108,7 +108,7 @@ const App = () => {
   const [data, setData] = useState<GroupData>(() => loadData());
   const [newPerson, setNewPerson] = useState("");
   const [expenseDraft, setExpenseDraft] = useState<Expense>(() =>
-    createEmptyExpense(data.people),
+    createEmptyExpense(data.people)
   );
   const [categoryFilter, setCategoryFilter] = useState("Alle");
   const [searchTerm, setSearchTerm] = useState("");
@@ -127,7 +127,7 @@ const App = () => {
 
   const balances = useMemo(
     () => calculateBalances(data.people, data.expenses),
-    [data.people, data.expenses],
+    [data.people, data.expenses]
   );
 
   const settlements = useMemo(() => calculateSettlements(balances), [balances]);
@@ -171,7 +171,7 @@ const App = () => {
       expenses: current.expenses.map((expense) => ({
         ...expense,
         participantIds: expense.participantIds.filter(
-          (participantId) => participantId !== personId,
+          (participantId) => participantId !== personId
         ),
       })),
     }));
@@ -215,7 +215,7 @@ const App = () => {
     downloadFile(
       JSON.stringify(data, null, 2),
       "fairsplit-export.json",
-      "application/json",
+      "application/json"
     );
   };
 
@@ -240,7 +240,7 @@ const App = () => {
 
   const peopleMap = useMemo(
     () => new Map(data.people.map((person) => [person.id, person.name])),
-    [data.people],
+    [data.people]
   );
 
   return (
@@ -407,7 +407,7 @@ const App = () => {
               <div className="mt-2 flex flex-wrap gap-2">
                 {data.people.map((person) => {
                   const selected = expenseDraft.participantIds.includes(
-                    person.id,
+                    person.id
                   );
                   return (
                     <button
