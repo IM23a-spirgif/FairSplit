@@ -1,39 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-
-type Person = {
-  id: string;
-  name: string;
-};
-
-type Expense = {
-  id: string;
-  title: string;
-  amount: number;
-  payerId: string;
-  participantIds: string[];
-  category: string;
-  date: string;
-  note: string;
-};
-
-type GroupData = {
-  groupName: string;
-  people: Person[];
-  expenses: Expense[];
-};
-
-type Balance = {
-  personId: string;
-  paid: number;
-  owed: number;
-  net: number;
-};
-
-type Settlement = {
-  fromId: string;
-  toId: string;
-  amount: number;
-};
+import {
+  calculateBalances,
+  calculateSettlements,
+  type Expense,
+  type GroupData,
+  type Person,
+} from "./lib/split-calculations";
 
 const STORAGE_KEY = "fairsplit-data-v1";
 
@@ -90,76 +62,6 @@ const loadData = (): GroupData => {
   }
 };
 
-const calculateBalances = (people: Person[], expenses: Expense[]): Balance[] => {
-  const balances: Balance[] = people.map((person) => ({
-    personId: person.id,
-    paid: 0,
-    owed: 0,
-    net: 0,
-  }));
-
-  const balanceMap = new Map(balances.map((balance) => [balance.personId, balance]));
-
-  expenses.forEach((expense) => {
-    const share = expense.participantIds.length
-      ? expense.amount / expense.participantIds.length
-      : 0;
-    const payerBalance = balanceMap.get(expense.payerId);
-    if (payerBalance) {
-      payerBalance.paid += expense.amount;
-    }
-    expense.participantIds.forEach((participantId) => {
-      const participantBalance = balanceMap.get(participantId);
-      if (participantBalance) {
-        participantBalance.owed += share;
-      }
-    });
-  });
-
-  balances.forEach((balance) => {
-    balance.net = balance.paid - balance.owed;
-  });
-
-  return balances;
-};
-
-const calculateSettlements = (balances: Balance[]): Settlement[] => {
-  const creditors = balances
-    .filter((balance) => balance.net > 0.01)
-    .map((balance) => ({ ...balance }));
-  const debtors = balances
-    .filter((balance) => balance.net < -0.01)
-    .map((balance) => ({ ...balance, net: Math.abs(balance.net) }));
-
-  const settlements: Settlement[] = [];
-  let creditorIndex = 0;
-  let debtorIndex = 0;
-
-  while (creditorIndex < creditors.length && debtorIndex < debtors.length) {
-    const creditor = creditors[creditorIndex];
-    const debtor = debtors[debtorIndex];
-    const amount = Math.min(creditor.net, debtor.net);
-
-    settlements.push({
-      fromId: debtor.personId,
-      toId: creditor.personId,
-      amount,
-    });
-
-    creditor.net -= amount;
-    debtor.net -= amount;
-
-    if (creditor.net <= 0.01) {
-      creditorIndex += 1;
-    }
-    if (debtor.net <= 0.01) {
-      debtorIndex += 1;
-    }
-  }
-
-  return settlements;
-};
-
 const downloadFile = (content: string, filename: string, type: string) => {
   const blob = new Blob([content], { type });
   const url = URL.createObjectURL(blob);
@@ -180,7 +82,9 @@ const toCsv = (data: GroupData) => {
     "Kategorie",
     "Notiz",
   ];
-  const peopleMap = new Map(data.people.map((person) => [person.id, person.name]));
+  const peopleMap = new Map(
+    data.people.map((person) => [person.id, person.name]),
+  );
   const rows = data.expenses.map((expense) => [
     expense.title,
     expense.amount.toFixed(2),
@@ -193,7 +97,9 @@ const toCsv = (data: GroupData) => {
     expense.note.replaceAll("\n", " "),
   ]);
   const body = [headers, ...rows]
-    .map((row) => row.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(";"))
+    .map((row) =>
+      row.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(";"),
+    )
     .join("\n");
   return body;
 };
@@ -202,7 +108,7 @@ const App = () => {
   const [data, setData] = useState<GroupData>(() => loadData());
   const [newPerson, setNewPerson] = useState("");
   const [expenseDraft, setExpenseDraft] = useState<Expense>(() =>
-    createEmptyExpense(data.people)
+    createEmptyExpense(data.people),
   );
   const [categoryFilter, setCategoryFilter] = useState("Alle");
   const [searchTerm, setSearchTerm] = useState("");
@@ -221,7 +127,7 @@ const App = () => {
 
   const balances = useMemo(
     () => calculateBalances(data.people, data.expenses),
-    [data.people, data.expenses]
+    [data.people, data.expenses],
   );
 
   const settlements = useMemo(() => calculateSettlements(balances), [balances]);
@@ -265,7 +171,7 @@ const App = () => {
       expenses: current.expenses.map((expense) => ({
         ...expense,
         participantIds: expense.participantIds.filter(
-          (participantId) => participantId !== personId
+          (participantId) => participantId !== personId,
         ),
       })),
     }));
@@ -309,7 +215,7 @@ const App = () => {
     downloadFile(
       JSON.stringify(data, null, 2),
       "fairsplit-export.json",
-      "application/json"
+      "application/json",
     );
   };
 
@@ -334,7 +240,7 @@ const App = () => {
 
   const peopleMap = useMemo(
     () => new Map(data.people.map((person) => [person.id, person.name])),
-    [data.people]
+    [data.people],
   );
 
   return (
@@ -500,7 +406,9 @@ const App = () => {
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {data.people.map((person) => {
-                  const selected = expenseDraft.participantIds.includes(person.id);
+                  const selected = expenseDraft.participantIds.includes(
+                    person.id,
+                  );
                   return (
                     <button
                       key={person.id}
