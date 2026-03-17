@@ -275,12 +275,19 @@ const App = () => {
       return;
     }
 
-    const sanitizedExpense = sanitizeExpenseForPeople(expenseDraft, data.people);
+    const sanitizedExpense = sanitizeExpenseForPeople(
+      expenseDraft,
+      data.people
+    );
 
     setData((current) => ({
       ...current,
       expenses: editingExpenseId
-        ? updateExpenseInGroup(current.expenses, sanitizedExpense, current.people)
+        ? updateExpenseInGroup(
+            current.expenses,
+            sanitizedExpense,
+            current.people
+          )
         : addExpenseToGroup(
             current.expenses,
             { ...sanitizedExpense, id: crypto.randomUUID() },

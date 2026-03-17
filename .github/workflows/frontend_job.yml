@@ -23,13 +23,16 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Run Prettier check
+      - name: Run Formatter check
         run: npm run format-check
 
-      - name: Run ESLint check
+      - name: Run Linter check
         run: npm run lint-check
+
+      - name: Run tests
+        run: npm run test-coverage
 
       - name: Build
         run: npm run build
