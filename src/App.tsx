@@ -252,6 +252,7 @@ const App = () => {
               Projektantrag
             </p>
             <input
+              aria-label="Gruppenname"
               className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-2xl font-semibold text-slate-900 shadow-sm"
               value={data.groupName}
               onChange={(event) => updateGroupName(event.target.value)}
@@ -298,12 +299,14 @@ const App = () => {
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
               <input
+                aria-label="Teilnehmername"
                 className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm"
                 placeholder="Name hinzufügen"
                 value={newPerson}
                 onChange={(event) => setNewPerson(event.target.value)}
               />
               <button
+                aria-label="Teilnehmer hinzufügen"
                 className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
                 onClick={addPerson}
               >
@@ -320,6 +323,7 @@ const App = () => {
 
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               <input
+                aria-label="Ausgabentitel"
                 className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
                 placeholder="Titel (z.B. Einkauf)"
                 value={expenseDraft.title}
@@ -331,6 +335,7 @@ const App = () => {
                 }
               />
               <input
+                aria-label="Betrag"
                 className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
                 placeholder="Betrag"
                 type="number"
@@ -345,6 +350,7 @@ const App = () => {
                 }
               />
               <select
+                aria-label="Zahler"
                 className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
                 value={expenseDraft.payerId}
                 onChange={(event) =>
@@ -361,6 +367,7 @@ const App = () => {
                 ))}
               </select>
               <input
+                aria-label="Datum"
                 className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
                 type="date"
                 value={expenseDraft.date}
@@ -372,6 +379,7 @@ const App = () => {
                 }
               />
               <select
+                aria-label="Kategorie"
                 className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
                 value={expenseDraft.category}
                 onChange={(event) =>
@@ -388,6 +396,7 @@ const App = () => {
                 ))}
               </select>
               <input
+                aria-label="Notiz"
                 className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
                 placeholder="Notiz"
                 value={expenseDraft.note}
@@ -428,12 +437,14 @@ const App = () => {
 
             <div className="mt-4 flex flex-wrap gap-3">
               <button
+                aria-label="Ausgabe speichern"
                 className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white"
                 onClick={addExpense}
               >
                 Ausgabe speichern
               </button>
               <button
+                aria-label="Ausgabenformular leeren"
                 className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700"
                 onClick={() => setExpenseDraft(createEmptyExpense(data.people))}
               >
@@ -454,6 +465,7 @@ const App = () => {
               </div>
               <div className="flex flex-wrap gap-2">
                 <select
+                  aria-label="Kategorie filtern"
                   className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
                   value={categoryFilter}
                   onChange={(event) => setCategoryFilter(event.target.value)}
@@ -465,6 +477,7 @@ const App = () => {
                   ))}
                 </select>
                 <input
+                  aria-label="Ausgaben durchsuchen"
                   className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
                   placeholder="Suche"
                   value={searchTerm}
@@ -587,12 +600,14 @@ const App = () => {
             </p>
             <div className="mt-4 flex flex-col gap-3 text-sm">
               <button
+                aria-label="JSON exportieren"
                 className="rounded-lg bg-slate-900 px-4 py-2 font-semibold text-white"
                 onClick={exportJson}
               >
                 JSON exportieren
               </button>
               <button
+                aria-label="CSV exportieren"
                 className="rounded-lg border border-slate-200 px-4 py-2 font-semibold text-slate-700"
                 onClick={exportCsv}
               >
@@ -601,6 +616,7 @@ const App = () => {
               <label className="flex cursor-pointer flex-col rounded-lg border border-dashed border-slate-200 px-4 py-2 text-center text-sm text-slate-500">
                 JSON importieren
                 <input
+                  aria-label="JSON importieren"
                   className="hidden"
                   type="file"
                   accept="application/json"

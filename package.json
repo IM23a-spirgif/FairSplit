@@ -13,7 +13,11 @@
     "lint-check": "eslint .",
     "test": "vitest run",
     "test-coverage": "vitest run --coverage",
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "dev:e2e": "vite --host 127.0.0.1 --port 4173",
+    "e2e": "playwright test",
+    "e2e:headed": "playwright test --headed",
+    "test:e2e:ci": "playwright test"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -21,6 +25,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.58.2",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
