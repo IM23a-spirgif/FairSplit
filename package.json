@@ -15,9 +15,9 @@
     "test-coverage": "vitest run --coverage",
     "tsc": "tsc",
     "dev:e2e": "vite --host 127.0.0.1 --port 4173",
-    "e2e": "playwright test",
-    "e2e:headed": "playwright test --headed",
-    "test:e2e:ci": "playwright test"
+    "e2e": "playwright test --config=playwright.config.ts",
+    "e2e:headed": "playwright test --config=playwright.config.ts --headed",
+    "test:e2e:ci": "playwright test --config=playwright.config.ts"
   },
   "dependencies": {
     "react": "^18.3.1",
