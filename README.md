@@ -1,4 +1,5 @@
 [![Build Frontend](https://github.com/IM23a-spirgif/FairSplit/actions/workflows/frontend_job.yml/badge.svg)](https://github.com/IM23a_spirgif/FairSplit/actions/workflows/frontend_job.yml)
+[![E2E Tests](https://github.com/IM23a-spirgif/FairSplit/actions/workflows/e2e_job.yml/badge.svg)](https://github.com/IM23a_spirgif/FairSplit/actions/workflows/e2e_job.yml)
 
 # FairSplit
 
