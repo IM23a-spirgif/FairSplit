@@ -7,7 +7,7 @@ test("users can add a participant, capture an expense, and see balances", async 
     .getByRole("heading", {
       name: "Teilnehmer & Rollen",
     })
-    .locator("..");
+    .locator("xpath=ancestor::section[1]");
 
   await page.addInitScript(() => {
     window.localStorage.clear();
@@ -21,13 +21,11 @@ test("users can add a participant, capture an expense, and see balances", async 
 
   await page.getByLabel("Teilnehmername").fill("Tina");
   await page.getByLabel("Teilnehmer hinzufügen").click();
-  await expect(
-    participantSection.getByText("Tina", { exact: true }).first()
-  ).toBeVisible();
+  await expect(participantSection.getByLabel("Tina entfernen")).toBeVisible();
 
   await page.getByLabel("Ausgabentitel").fill("Abendessen");
   await page.getByLabel("Betrag").fill("60");
-  await page.getByLabel("Notiz").fill("Pizza und Getranke");
+  await page.getByLabel("Notiz").fill("Pizza und Getränke");
   await page.getByLabel("Ausgabe speichern").click();
 
   await expect(page.getByText("Abendessen", { exact: true })).toBeVisible();
