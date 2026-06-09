@@ -1,6 +1,6 @@
 ﻿import { expect, test } from "@playwright/test";
 
-test("registered users can invite another registered user, capture an expense, and see balances", async ({
+test("registered users connect as peers before group invites and expenses", async ({
   page,
 }) => {
   await page.addInitScript(() => {
@@ -28,6 +28,24 @@ test("registered users can invite another registered user, capture an expense, a
   await page.getByLabel("E-Mail").fill("test@example.com");
   await page.getByLabel("Passwort").fill("supersecret");
   await page.locator("form").getByRole("button", { name: "Einloggen" }).click();
+
+  await page.getByLabel("Peer-E-Mail anfragen").fill("tina@example.com");
+  await page.getByLabel("Peer-Verbindung anfragen").click();
+  await expect(page.getByText("Anfrage an Tina wartet.")).toBeVisible();
+
+  await page.getByRole("button", { name: "Logout" }).click();
+  await page.getByLabel("E-Mail").fill("tina@example.com");
+  await page.getByLabel("Passwort").fill("supersecret");
+  await page.locator("form").getByRole("button", { name: "Einloggen" }).click();
+  await expect(page.getByText("Test User", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Akzeptieren" }).click();
+  await expect(page.getByText("test@example.com")).toBeVisible();
+
+  await page.getByRole("button", { name: "Logout" }).click();
+  await page.getByLabel("E-Mail").fill("test@example.com");
+  await page.getByLabel("Passwort").fill("supersecret");
+  await page.locator("form").getByRole("button", { name: "Einloggen" }).click();
+  await expect(page.getByText("tina@example.com")).toBeVisible();
 
   await page
     .getByLabel("Registrierte E-Mail einladen")
