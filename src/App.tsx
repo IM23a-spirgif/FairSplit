@@ -67,6 +67,11 @@ const accountToPerson = (account: AuthUser): Person => ({
   name: account.name,
 });
 
+const createFreePerson = (name: string): Person => ({
+  id: `local-${crypto.randomUUID()}`,
+  name,
+});
+
 const createEmptyExpense = (people: Person[]): Expense => ({
   id: crypto.randomUUID(),
   title: "",
@@ -133,8 +138,20 @@ const normalizeGroupData = (
       (member) => member.id === person.id
     );
 
-    if (registeredPerson && !alreadyAdded) {
+    if (alreadyAdded) {
+      return registeredMembers;
+    }
+
+    if (registeredPerson) {
       registeredMembers.push(registeredPerson);
+      return registeredMembers;
+    }
+
+    if (person.id.startsWith("local-") && person.name.trim()) {
+      registeredMembers.push({
+        id: person.id,
+        name: person.name.trim(),
+      });
     }
 
     return registeredMembers;
@@ -261,6 +278,7 @@ const App = () => {
     authUser ? loadData(authUser) : emptyData
   );
   const [inviteEmail, setInviteEmail] = useState("");
+  const [freePersonName, setFreePersonName] = useState("");
   const [inviteError, setInviteError] = useState("");
   const [expenseDraft, setExpenseDraft] = useState<Expense>(() =>
     createEmptyExpense(data.people)
@@ -433,6 +451,41 @@ const App = () => {
     setAuthError("");
     setExpenseError("");
     setInviteError("");
+    setFreePersonName("");
+  };
+
+  const addFreePerson = (event?: FormEvent<HTMLFormElement>) => {
+    event?.preventDefault();
+    setInviteError("");
+
+    const name = freePersonName.trim();
+    if (!name) return;
+
+    const alreadyExists = data.people.some(
+      (person) => person.name.trim().toLowerCase() === name.toLowerCase()
+    );
+    if (alreadyExists) {
+      setInviteError("Diese Person ist bereits in der Gruppe.");
+      return;
+    }
+
+    const person = createFreePerson(name);
+    const nextPeople = [...data.people, person];
+    setData((current) => ({ ...current, people: nextPeople }));
+    setExpenseDraft((current) => ({
+      ...current,
+      participantIds: current.participantIds.includes(person.id)
+        ? current.participantIds
+        : [...current.participantIds, person.id],
+    }));
+    pushNotification(
+      createGroupChangeNotification(
+        `${person.name} wurde zur Gruppe hinzugefügt.`,
+        nextPeople,
+        notificationPreferences
+      )
+    );
+    setFreePersonName("");
   };
 
   const inviteRegisteredUser = (event?: FormEvent<HTMLFormElement>) => {
@@ -1186,6 +1239,28 @@ const App = () => {
               </span>
             </div>
 
+            <form className="mt-4 grid gap-2" onSubmit={addFreePerson}>
+              <div className="flex gap-2">
+                <input
+                  aria-label="Freien Teilnehmernamen hinzufügen"
+                  className="min-h-11 min-w-0 flex-1 rounded-2xl border border-slate-300 bg-white px-4 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+                  placeholder="Name hinzufügen"
+                  value={freePersonName}
+                  onChange={(event) => setFreePersonName(event.target.value)}
+                />
+                <button
+                  aria-label="Freien Teilnehmer hinzufügen"
+                  className="min-h-11 rounded-2xl bg-slate-950 px-4 text-sm font-black text-white transition hover:bg-slate-800"
+                  type="submit"
+                >
+                  Hinzufügen
+                </button>
+              </div>
+              <p className="text-xs leading-5 text-slate-500">
+                Für einfache Splits kannst du freie Namen verwenden.
+              </p>
+            </form>
+
             <form className="mt-4 grid gap-2" onSubmit={inviteRegisteredUser}>
               <div className="flex gap-2">
                 <input
@@ -1205,8 +1280,8 @@ const App = () => {
                 </button>
               </div>
               <p className="text-xs leading-5 text-slate-500">
-                Beteiligte müssen zuerst einen Account registrieren. Freie Namen
-                werden nicht mehr akzeptiert.
+                Optional: registrierte Accounts per E-Mail hinzufügen, wenn die
+                Person selbst einloggen soll.
               </p>
               {inviteError && (
                 <p className="rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700">
